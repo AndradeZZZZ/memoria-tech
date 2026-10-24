@@ -22,13 +22,12 @@ workflow**. O arquivo é copiado para um diretório temporário e enviado como
 artefato do Pages; o `README.md` e os demais arquivos do repositório não são
 publicados.
 
-Na primeira configuração, abra **Settings → Pages** e selecione **GitHub
-Actions** como origem do build. O workflow usa permissões restritas ao job de
-publicação (`pages: write` e `id-token: write`); não requer dependências ou
-servidor para o jogo.
+O GitHub Pages está configurado para usar **GitHub Actions** como origem do
+build. O workflow usa permissões restritas ao job de publicação (`pages: write`
+e `id-token: write`); não requer dependências ou servidor para o jogo.
 
 Após uma execução concluída, o jogo ficará em
 <https://andradezzzz.github.io/memoria-tech/>. Para verificar, confira a
 execução em **Actions**, o deployment `github-pages` no ambiente do repositório
-e abra a URL. Como este repositório é privado, a disponibilidade do Pages
-depende do plano GitHub da conta e das configurações de acesso ao site.
+e abra a URL. O repositório e o site são públicos; não publique dados sensíveis
+neste projeto.
