@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta
+      name="description"
+      content="Encontre os seis pares de emojis de tecnologia neste jogo da memória do Dev Days."
+    >
+    <title>Jogo da memória | Dev Days</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        --ink: #252331;
+        --muted: #5e5a6b;
+        --paper: #fbfaff;
+        --surface: #fff;
+        --line: #e1ddeb;
+        --purple: #6633cc;
+        --purple-dark: #4e22a8;
+        --purple-soft: #eee7fc;
+        --green: #23664b;
+        --green-soft: #e6f5ec;
+        --yellow: #f7dc72;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(ellipse at 50% 0, #f1ecff 0, transparent 37rem),
+          var(--paper);
+        color: var(--ink);
+        font-size: 1rem;
+        line-height: 1.55;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      button:focus-visible {
+        outline: 3px solid #31205b;
+        outline-offset: 4px;
+      }
+
+      .skip-link {
+        position: absolute;
+        z-index: 2;
+        top: 0.75rem;
+        left: 0.75rem;
+        padding: 0.65rem 0.9rem;
+        transform: translateY(-160%);
+        border-radius: 0.5rem;
+        background: var(--ink);
+        color: #fff;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 4.5rem;
+        padding: 0.8rem clamp(1rem, 5vw, 4.5rem);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        color: var(--ink);
+        font-size: 0.94rem;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 2rem;
+        height: 2rem;
+        place-items: center;
+        border-radius: 0.65rem;
+        background: var(--purple);
+        color: white;
+        font-size: 1rem;
+      }
+
+      .topbar-note {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      main {
+        width: min(100% - 2rem, 47rem);
+        margin: 0 auto;
+        padding: clamp(2.5rem, 7vh, 4.5rem) 0 3rem;
+      }
+
+      .intro {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 1.75rem;
+      }
+
+      h1 {
+        max-width: 12ch;
+        margin: 0;
+        font-size: clamp(2.25rem, 7vw, 3.65rem);
+        font-weight: 800;
+        letter-spacing: -0.065em;
+        line-height: 1.02;
+      }
+
+      .intro p {
+        max-width: 26ch;
+        margin: 0.9rem 0 0;
+        color: var(--muted);
+      }
+
+      .intro-doodle {
+        flex: 0 0 auto;
+        display: grid;
+        width: 4.25rem;
+        height: 4.25rem;
+        place-items: center;
+        transform: rotate(7deg);
+        border: 1px solid #eadc9f;
+        border-radius: 1.2rem;
+        background: var(--yellow);
+        font-size: 2rem;
+      }
+
+      .game-panel {
+        padding: clamp(1rem, 3vw, 1.5rem);
+        border: 1px solid var(--line);
+        border-radius: 1.25rem;
+        background: var(--surface);
+        box-shadow: 0 18px 45px -32px #30205c66;
+      }
+
+      .game-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: clamp(1rem, 5vw, 2.25rem);
+        margin: 0;
+      }
+
+      .stat {
+        display: grid;
+        gap: 0.05rem;
+      }
+
+      .stat dt {
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 650;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .stat dd {
+        margin: 0;
+        font-variant-numeric: tabular-nums;
+        font-size: 1.35rem;
+        font-weight: 750;
+        line-height: 1.2;
+      }
+
+      .reset-button,
+      .play-again-button {
+        min-height: 2.75rem;
+        padding: 0.65rem 0.9rem;
+        border: 1px solid var(--line);
+        border-radius: 0.7rem;
+        background: var(--surface);
+        color: var(--purple-dark);
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          background-color 160ms ease,
+          border-color 160ms ease,
+          transform 160ms ease;
+      }
+
+      .reset-button:hover,
+      .play-again-button:hover {
+        transform: translateY(-1px);
+        border-color: #c8b7ee;
+        background: var(--purple-soft);
+      }
+
+      .status-message {
+        min-height: 1.55rem;
+        margin: 0 0 1rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: clamp(0.55rem, 2vw, 0.85rem);
+      }
+
+      .card {
+        min-width: 0;
+        aspect-ratio: 1.25;
+        padding: 0;
+        perspective: 700px;
+        border: 0;
+        border-radius: 0.9rem;
+        background: transparent;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .card:disabled {
+        cursor: default;
+      }
+
+      .card-inner {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 360ms cubic-bezier(0.2, 0.72, 0.22, 1);
+      }
+
+      .card.is-open .card-inner,
+      .card.is-matched .card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .card-face {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        backface-visibility: hidden;
+        border: 1px solid #d8c9f6;
+        border-radius: inherit;
+      }
+
+      .card-back {
+        background:
+          linear-gradient(135deg, transparent 48%, #ffffff3b 49%, #ffffff3b 51%, transparent 52%),
+          var(--purple-soft);
+        color: var(--purple);
+        font-size: clamp(1.3rem, 5vw, 2rem);
+        font-weight: 800;
+      }
+
+      .card-front {
+        transform: rotateY(180deg);
+        border-color: var(--line);
+        background: #fff;
+        font-size: clamp(2rem, 8vw, 3.4rem);
+      }
+
+      .card.is-matched .card-front {
+        border-color: #a9d3b9;
+        background: var(--green-soft);
+        box-shadow: inset 0 0 0 2px #c8e6d2;
+      }
+
+      .completion {
+        margin-top: 1.25rem;
+        padding: 1.1rem 1.2rem;
+        border: 1px solid #b8dfc7;
+        border-radius: 0.9rem;
+        background: var(--green-soft);
+      }
+
+      .completion h2 {
+        margin: 0;
+        color: #194f39;
+        font-size: 1.2rem;
+        letter-spacing: -0.025em;
+      }
+
+      .completion p {
+        margin: 0.3rem 0 0.9rem;
+        color: #315b47;
+      }
+
+      .play-again-button {
+        border-color: #a9d3b9;
+        background: #fff;
+        color: #194f39;
+      }
+
+      .play-again-button:hover {
+        border-color: #82bd97;
+        background: #f5fff8;
+      }
+
+      .footer-note {
+        margin: 1rem 0 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+        text-align: center;
+      }
+
+      @media (max-width: 520px) {
+        .topbar {
+          min-height: 3.8rem;
+        }
+
+        .topbar-note {
+          max-width: 12ch;
+          text-align: right;
+        }
+
+        main {
+          width: min(100% - 1.25rem, 30rem);
+          padding-top: 2.4rem;
+        }
+
+        .intro {
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .intro-doodle {
+          width: 3.25rem;
+          height: 3.25rem;
+          border-radius: 1rem;
+          font-size: 1.5rem;
+        }
+
+        .game-toolbar {
+          align-items: start;
+        }
+
+        .board {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .card {
+          aspect-ratio: 1.08;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#jogo">Pular para o jogo</a>
+    <header class="topbar">
+      <a class="brand" href="#inicio" aria-label="Dev Days, início">
+        <span class="brand-mark" aria-hidden="true">⌘</span>
+        <span>Dev Days</span>
+      </a>
+      <span class="topbar-note">Uma pausa para treinar a memória</span>
+    </header>
+
+    <main id="inicio">
+      <section class="intro" aria-labelledby="titulo">
+        <div>
+          <h1 id="titulo">Memória em modo dev.</h1>
+          <p>Encontre os seis pares de tecnologia. Duas cartas por vez — será que você lembra onde viu cada uma?</p>
+        </div>
+        <span class="intro-doodle" aria-hidden="true">✳</span>
+      </section>
+
+      <section class="game-panel" id="jogo" aria-label="Jogo da memória">
+        <div class="game-toolbar">
+          <dl class="stats" aria-label="Placar">
+            <div class="stat">
+              <dt>Jogadas</dt>
+              <dd id="moves">0</dd>
+            </div>
+            <div class="stat">
+              <dt>Tempo</dt>
+              <dd id="timer">00:00</dd>
+            </div>
+          </dl>
+          <button class="reset-button" id="reset" type="button">Reiniciar</button>
+        </div>
+
+        <p class="status-message" id="status" aria-live="polite">Escolha uma carta para começar.</p>
+        <div class="board" id="board" role="group" aria-label="12 cartas viradas para baixo"></div>
+
+        <section class="completion" id="completion" aria-labelledby="completion-title" hidden>
+          <h2 id="completion-title">Você encontrou todos os pares! 🎉</h2>
+          <p id="completion-summary"></p>
+          <button class="play-again-button" id="play-again" type="button">Jogar novamente</button>
+        </section>
+      </section>
+
+      <p class="footer-note">Dica: você também pode jogar usando Tab, Enter ou Espaço.</p>
+    </main>
+
+    <script>
+      (() => {
+        const symbols = [
+          { emoji: "💻", name: "computador" },
+          { emoji: "🐙", name: "polvo" },
+          { emoji: "🤖", name: "robô" },
+          { emoji: "🚀", name: "foguete" },
+          { emoji: "☕", name: "café" },
+          { emoji: "🐛", name: "bug" },
+        ];
+
+        const board = document.querySelector("#board");
+        const movesDisplay = document.querySelector("#moves");
+        const timerDisplay = document.querySelector("#timer");
+        const statusMessage = document.querySelector("#status");
+        const completion = document.querySelector("#completion");
+        const completionSummary = document.querySelector("#completion-summary");
+        const resetButton = document.querySelector("#reset");
+        const playAgainButton = document.querySelector("#play-again");
+
+        let cards = [];
+        let firstCard = null;
+        let secondCard = null;
+        let moves = 0;
+        let matchedPairs = 0;
+        let seconds = 0;
+        let timerId = null;
+        let mismatchTimeoutId = null;
+        let isLocked = false;
+
+        function formatTime(totalSeconds) {
+          const minutes = Math.floor(totalSeconds / 60);
+          const remainingSeconds = totalSeconds % 60;
+          return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+        }
+
+        function shuffle(items) {
+          const shuffled = [...items];
+          for (let index = shuffled.length - 1; index > 0; index -= 1) {
+            const randomIndex = Math.floor(Math.random() * (index + 1));
+            [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+          }
+          return shuffled;
+        }
+
+        function setCardState(card, state) {
+          card.element.classList.toggle("is-open", state === "open");
+          card.element.classList.toggle("is-matched", state === "matched");
+          card.element.setAttribute("aria-label", state === "matched"
+            ? `Carta ${card.position}, par encontrado: ${card.name}`
+            : state === "open"
+              ? `Carta ${card.position}, aberta: ${card.name}`
+              : `Carta ${card.position}, fechada`);
+          card.element.setAttribute("aria-pressed", String(state !== "closed"));
+          card.element.disabled = state === "matched";
+          card.state = state;
+        }
+
+        function createBoard() {
+          const deck = shuffle(symbols.flatMap((symbol, pairId) => [
+            { ...symbol, pairId },
+            { ...symbol, pairId },
+          ]));
+
+          board.replaceChildren();
+          cards = deck.map((cardData, index) => {
+            const button = document.createElement("button");
+            button.className = "card";
+            button.type = "button";
+            button.setAttribute("aria-pressed", "false");
+            button.setAttribute("aria-label", `Carta ${index + 1}, fechada`);
+            button.innerHTML = `
+              <span class="card-inner" aria-hidden="true">
+                <span class="card-face card-back">?</span>
+                <span class="card-face card-front">${cardData.emoji}</span>
+              </span>
+            `;
+
+            const card = {
+              ...cardData,
+              element: button,
+              position: index + 1,
+              state: "closed",
+            };
+            button.addEventListener("click", () => revealCard(card));
+            board.append(button);
+            return card;
+          });
+        }
+
+        function startTimer() {
+          if (timerId !== null) return;
+          timerId = window.setInterval(() => {
+            seconds += 1;
+            timerDisplay.textContent = formatTime(seconds);
+          }, 1000);
+        }
+
+        function stopTimer() {
+          if (timerId !== null) {
+            window.clearInterval(timerId);
+            timerId = null;
+          }
+        }
+
+        function finishGame() {
+          stopTimer();
+          const moveLabel = moves === 1 ? "jogada" : "jogadas";
+          completionSummary.textContent = `Tempo: ${formatTime(seconds)} · ${moves} ${moveLabel}.`;
+          completion.hidden = false;
+          statusMessage.textContent = "Parabéns! Você encontrou todos os pares.";
+          board.setAttribute("aria-label", "Todos os pares encontrados");
+        }
+
+        function revealCard(card) {
+          if (isLocked || card.state !== "closed") return;
+
+          startTimer();
+          setCardState(card, "open");
+
+          if (firstCard === null) {
+            firstCard = card;
+            statusMessage.textContent = "Agora escolha outra carta.";
+            return;
+          }
+
+          secondCard = card;
+          moves += 1;
+          movesDisplay.textContent = String(moves);
+
+          if (firstCard.pairId === secondCard.pairId) {
+            setCardState(firstCard, "matched");
+            setCardState(secondCard, "matched");
+            matchedPairs += 1;
+            firstCard = null;
+            secondCard = null;
+
+            if (matchedPairs === symbols.length) {
+              finishGame();
+            } else {
+              statusMessage.textContent = `Par encontrado: ${card.name}. Continue!`;
+            }
+            return;
+          }
+
+          isLocked = true;
+          statusMessage.textContent = "Não combinou. Tente outra vez.";
+          mismatchTimeoutId = window.setTimeout(() => {
+            setCardState(firstCard, "closed");
+            setCardState(secondCard, "closed");
+            firstCard = null;
+            secondCard = null;
+            mismatchTimeoutId = null;
+            isLocked = false;
+            statusMessage.textContent = "As cartas foram viradas. Escolha outra dupla.";
+          }, 1000);
+        }
+
+        function startGame(focusFirstCard = false) {
+          stopTimer();
+          if (mismatchTimeoutId !== null) {
+            window.clearTimeout(mismatchTimeoutId);
+            mismatchTimeoutId = null;
+          }
+          moves = 0;
+          matchedPairs = 0;
+          seconds = 0;
+          firstCard = null;
+          secondCard = null;
+          isLocked = false;
+          movesDisplay.textContent = "0";
+          timerDisplay.textContent = "00:00";
+          statusMessage.textContent = "Escolha uma carta para começar.";
+          completion.hidden = true;
+          board.setAttribute("aria-label", "12 cartas viradas para baixo");
+          createBoard();
+          if (focusFirstCard) board.querySelector("button").focus();
+        }
+
+        resetButton.addEventListener("click", () => startGame());
+        playAgainButton.addEventListener("click", () => startGame(true));
+        startGame();
+      })();
+    </script>
+  </body>
+</html>
