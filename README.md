@@ -12,3 +12,23 @@ funciona diretamente no navegador, sem bibliotecas, fontes externas ou servidor.
 Abra `index.html` diretamente no navegador. Use **Tab** para percorrer as cartas
 e **Enter** ou **Espaço** para virá-las. Encontre os seis pares; o jogo mostra
 as jogadas e o tempo e permite iniciar uma nova partida.
+
+## Publicação no GitHub Pages
+
+O workflow [`Publicar jogo no GitHub Pages`](.github/workflows/pages.yml)
+publica somente `index.html`. Ele é executado quando há um push para `main` ou
+quando iniciado manualmente em **Actions → Publicar jogo no GitHub Pages → Run
+workflow**. O arquivo é copiado para um diretório temporário e enviado como
+artefato do Pages; o `README.md` e os demais arquivos do repositório não são
+publicados.
+
+Na primeira configuração, abra **Settings → Pages** e selecione **GitHub
+Actions** como origem do build. O workflow usa permissões restritas ao job de
+publicação (`pages: write` e `id-token: write`); não requer dependências ou
+servidor para o jogo.
+
+Após uma execução concluída, o jogo ficará em
+<https://andradezzzz.github.io/memoria-tech/>. Para verificar, confira a
+execução em **Actions**, o deployment `github-pages` no ambiente do repositório
+e abra a URL. Como este repositório é privado, a disponibilidade do Pages
+depende do plano GitHub da conta e das configurações de acesso ao site.
